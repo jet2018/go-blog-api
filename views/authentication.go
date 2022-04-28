@@ -150,17 +150,3 @@ func getToken(c *gin.Context) (string, bool) {
 	}
 	return strings.Trim(arr[1], "\n\t\r"), true
 }
-
-func Session(c *gin.Context) (*models.User, bool, error) {
-	var user models.User
-	id, ok := c.Get("id")
-	if !ok {
-		return nil, false, nil
-	}
-	helpers.Db.First(&user, id)
-	// check if user's account is active
-	if !user.IsActive {
-		return nil, false, errors.New("not authorised to perform this action, account is still deactivated")
-	}
-	return &user, true, nil
-}

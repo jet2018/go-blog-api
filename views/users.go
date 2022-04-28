@@ -73,7 +73,7 @@ func AddUser(c *gin.Context) {
 
 // Me si the logged-in user profile
 func Me(c *gin.Context) {
-	user, _, err := Session(c)
+	user, _, err := helpers.Session(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
@@ -81,16 +81,24 @@ func Me(c *gin.Context) {
 	c.JSON(http.StatusOK, &user)
 }
 
-// UserByUsername returns the profile of the user by their username
-func UserByUsername(c *gin.Context) {
+// UserByUsernameOrId returns the profile of the user by their username or id,
+// both must be passed as username, the differences will be internal
+func UserByUsernameOrId(c *gin.Context) {
 	var user models.User
 	username := c.Param("username")
-	helpers.Db.First(&user, "username = ?", username)
-	c.JSON(http.StatusOK, &user)
+	res := helpers.Db.First(&user, "username = ? || id = ?", username, username)
+	if res.RowsAffected > 0 {
+		c.JSON(http.StatusOK, &user)
+		return
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No associated account"})
+		return
+	}
+
 }
 
 func DeactivateMyAccount(c *gin.Context) {
-	user, ok, err := Session(c)
+	user, ok, err := helpers.Session(c)
 	if ok {
 		var newUser *models.User
 		Id := user.ID

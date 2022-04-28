@@ -24,12 +24,13 @@ type Category struct {
 
 type Article struct {
 	gorm.Model
-	Body       string     `json:"body"`
+	Body       string     `json:"body" validate:"required"`
+	Cover      string     `json:"cover_photo"`
+	Title      string     `json:"title" validate:"required"`
 	Likes      []User     `gorm:"many2many:article_users_likes;" json:"likes"`
 	Readers    []User     `gorm:"many2many:article_users_readers;" json:"readers"`
 	Categories []Category `gorm:"many2many:category_articles;" json:"categories"`
 	UserId     int        `json:"user_id"`
-	User       User       `json:"user"`
 }
 
 type Comment struct {
